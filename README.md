@@ -2,7 +2,7 @@
 
 ## Info
 - Group Leader: Kaitlyn Yip (SID: 12345678)
-- Group Member: Lam Ching Yiu
+- Group Member: Lam Ching Yiu (SID 13793309)
 - Course: COMPS381F
 
 ## Files
