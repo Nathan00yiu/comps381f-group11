@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><title>Login</title></head><body>
+<div style="margin:50px">
+  <h2>BookMyTable Login</h2>
+  <% if (error) { %><p style="color:red"><%= error %></p><% } %>
+  <form method="POST" action="/login">
+    Username: <input name="username" required><br><br>
+    Password: <input name="password" type="password" required><br><br>
+    <button>Login</button>
+  </form>
+  <small>Use: <b>admin</b> / <b>admin123</b></small>
+</div>
+</body></html>
