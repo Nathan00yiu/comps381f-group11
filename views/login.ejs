@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<%- include('partials/header') %>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="text-center">BookMyTable Login</h3>
+            <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+            <form method="POST">
+              <input type="text" name="username" class="form-control mb-2" placeholder="Username" required>
+              <input type="password" name="password" class="form-control mb-2" placeholder="Password" required>
+              <button class="btn btn-primary w-100">Login</button>
+            </form>
+            <small class="text-muted d-block text-center mt-2">admin / admin123</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
