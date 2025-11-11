@@ -1,163 +1,237 @@
-require('dotenv').config();
+/* 
+Controllers - express modules
+-----------------------------
+express-formiddable: https://www.npmjs.com/package/express-formidable
+- express-formidable can basically parse form types, including application/x-www-form-urlencoded, application/json, and multipart/form-data.
+-----------------------------
+fs/promises: https://nodejs.org/zh-tw/learn/manipulating-files/reading-files-with-nodejs
+-----------------------------
+*/
 const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const methodOverride = require('method-override');
-const path = require('path');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const fs = require('node:fs/promises');
+const formidable = require('express-formidable'); 
+app.use(formidable());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookmytable')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+/* Model - mongodb modules
+mongodb ^6.9: https://www.npmjs.com/package/mongodb
+*/
+const { MongoClient, ObjectId } = require("mongodb");
+const mongourl = '';
+const client = new MongoClient(mongourl); 
+const dbName = 'project_samples';
+const collectionName = "bookings";
 
-// Models
-const User = require('./models/User');
-const Table = require('./models/Table');
-const Booking = require('./models/Booking');
-
-// Middleware
+// Views
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(methodOverride('_method'));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
-  resave: false,
-  saveUninitialized: false
-}));
 
-// Auth Middleware
-const requireLogin = (req, res, next) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  next();
+const insertDocument = async (db, doc) => {
+    var collection = db.collection(collectionName);
+    let results = await collection.insertOne(doc);
+	console.log("insert one document:" + JSON.stringify(results));
+    return results;
+
+}
+
+const findDocument = async (db, criteria) => {
+	let findResults = [];
+	let collection = db.collection(collectionName);
+	console.log(`findCriteria: ${JSON.stringify(criteria)}`);
+   	findResults = await collection.find(criteria).toArray();
+	console.log(`findDocument: ${findResults.length}`);
+	console.log(`findResults: ${JSON.stringify(findResults)}`);
+	return findResults;
 };
 
-// Seed Admin (Run once)
-app.get('/seed-admin', async (req, res) => {
-  const hashed = await bcrypt.hash('admin123', 10);
-  await User.findOneAndUpdate(
-    { username: 'admin' },
-    { username: 'admin', password: hashed, role: 'admin' },
-    { upsert: true }
-  );
-  res.send('Admin created: admin / admin123');
-});
+const updateDocument = async (db, criteria, updateDoc) => {
+    let updateResults = [];
+	let collection = db.collection(collectionName);
+	console.log(`updateCriteria: ${JSON.stringify(criteria)}`);
+   	updateResults = await collection.updateOne(criteria,{$set : updateDoc});
+	console.log(`updateResults: ${JSON.stringify(updateResults)}`);
+	return updateResults;
+}
 
-// === ROUTES ===
+const handle_Create = async (req, res) => {
+	await client.connect();
+	console.log("Connected successfully to server");
+    const db = client.db(dbName);
+    let newDoc = {
+        bookingid: req.fields.bookingid,
+        mobile: req.fields.mobile
+	};
 
-// Login Page
-app.get('/login', (req, res) => {
-  res.render('login');
-});
+	if (req.files.filetoupload && req.files.filetoupload.size > 0) {
+		const data = await fsPromises.readFile(req.files.filetoupload.path);
+		newDoc.photo = Buffer.from(data).toString('base64');
+	}
+	await insertDocument(db, newDoc);
+    res.redirect('/');
+}
+	/* create.js
+	<html>
+		<body>
+			<H1>Welcome, <%=user%></H1>
+			<hr/>
+			<form action="/create" method="POST" enctype="multipart/form-data">
+				Booking ID: <input name="bookingid"><br>
+				Mobile: <input name="mobile"  /><br>
+				<input type="file" name="filetoupload"><br>
+				<input type="submit" value="create">  
+			</form>
+		</body>
+	</html>
+	*/
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (user && await bcrypt.compare(password, user.password)) {
-    req.session.userId = user._id;
-    req.session.role = user.role;
-    return res.redirect('/');
-  }
-  res.render('login', { error: 'Invalid credentials' });
-});
 
-// Logout
-app.post('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/login');
-});
+const handle_Find = async (res, criteria) => {
+	await client.connect();
+	console.log("Connected successfully to server");
+	const db = client.db(dbName);
+    const docs = await findDocument(db, criteria);
+	await client.close();
+    console.log("Closed DB connection");
+    res.status(200).render('list',{nBookings: docs.length, bookings: docs});
+    /* list.ejs
+	<html>
+		<body>
+		    <H2>Bookings (<%= nBookings %>)</H2>
+		    <ul>
+		        <% for (var b of bookings) { %>
+		        <li>Booking ID: <a href="/details?_id=<%= b._id %>"><%= b.bookingid %></a></li>
+		        <% } %>
+		    </ul>
+		</body>
+	</html>
+		*/
+}
 
-// Dashboard - CRUD List
-app.get('/', requireLogin, async (req, res) => {
-  const { customerName, date, status } = req.query;
-  let query = {};
-  if (customerName) query.customerName = new RegExp(customerName, 'i');
-  if (date) query.date = { $gte: new Date(date), $lt: new Date(date + 'T23:59:59') };
-  if (status) query.status = status;
+const handle_Details = async (res, criteria) => {
+    await client.connect();
+	console.log("Connected successfully to server");
+	const db = client.db(dbName);
+    /* use Document ID for query */
+    let DOCID = {};
+    DOCID['_id'] = new ObjectId(criteria._id);
+	const docs = await findDocument(db, DOCID); 
+	await client.close();
+    console.log("Closed DB connection");
+    res.status(200).render('details', {booking: docs[0]});
+    /* details.ejs
+	<html>
+		<body>
+		    <H2>Booking Details</H2><hr>
+		    <p>Booking ID: <%= booking.bookingid %></p>
+		    <p>Mobile: <%= booking.mobile %></p>
 
-  const bookings = await Booking.find(query).populate('table').sort({ date: 1 });
-  const tables = await Table.find();
-  res.render('dashboard', { bookings, tables, query });
-});
+		    <% if (booking.photo) { %>
+		        <img src="data:image/jpg;base64, <%= booking.photo %>"><br>
+		    <% } %>
 
-// Create Booking (Web)
-app.get('/bookings/create', requireLogin, async (req, res) => {
-  const tables = await Table.find();
-  res.render('bookings/create', { tables });
-});
+		    <a href="/edit?_id=<%= booking._id %>">edit</a><br>
+		    <a href="/">home</a>
+		</body>
+	</html>
+    */
+}
 
-app.post('/bookings', requireLogin, async (req, res) => {
-  await Booking.create(req.body);
-  res.redirect('/');
-});
+const handle_Edit = async (res, criteria) => {
+    await client.connect();
+	console.log("Connected successfully to server");
+	const db = client.db(dbName);
+    /* use Document ID for query */
+    let DOCID = {};
+    DOCID['_id'] = new ObjectId(criteria._id)
+	const docs = await findDocument(db, DOCID); 
+	await client.close();
+    console.log("Closed DB connection");
+    res.status(200).render('edit',{booking: docs[0]});
+    /* edit.ejs
+	<html>
+		<body>
+		    <form action="/update" method="POST" enctype="multipart/form-data">
+		        Booking ID: <input name="bookingid" value=<%= booking.bookingid %>><br>
+		        Mobile: <input name="mobile" value=<%= booking.mobile %> /><br>
+		        <input type="file" name="filetoupload"><br>
+		        <input type="hidden" name="_id" value=<%= booking._id %>>
+		        <input type="submit" value="update">  
+		    </form>
+		</body>
+	</html>
+    */
+}
 
-// Edit Booking
-app.get('/bookings/edit/:id', requireLogin, async (req, res) => {
-  const booking = await Booking.findById(req.params.id);
-  const tables = await Table.find();
-  res.render('bookings/edit', { booking, tables });
-});
+const handle_Update = async (req, res, criteria) => {
+	await client.connect();
+	console.log("Connected successfully to server");
+	const db = client.db(dbName);
+        var DOCID = {};
+        DOCID['_id'] = new ObjectId(req.fields._id);
+        var updateDoc = {};
+        updateDoc['bookingid'] = req.fields.bookingid;
+        updateDoc['mobile'] = req.fields.mobile;
+        if (req.files.filetoupload.size > 0) {
+			const data = await fs.readFile(req.files.filetoupload.path, { encoding: 'base64' });
+			updateDoc['photo'] = new Buffer.from(data);
+            const results = await updateDocument(db, DOCID, updateDoc);
+			await client.close();
+    		console.log("Closed DB connection");
+			res.status(200).render('info', {message: `Updated ${results.modifiedCount} document(s)`})
+        } else {
+            const results = await updateDocument(db, DOCID, updateDoc);
+			await client.close();
+    		console.log("Closed DB connection");
+			res.status(200).render('info', {message: `Updated ${results.modifiedCount} document(s)`})
+        }
+	    /* info.ejs
+			<html>
+				<body>
+					<b><%= message %></b>
+					<p><a href="/">home</a></p>
+				</body>
+			</html>
+            */
+}
 
-app.put('/bookings/:id', requireLogin, async (req, res) => {
-  await Booking.findByIdAndUpdate(req.params.id, req.body);
-  res.redirect('/');
-});
+app.get('/', (req,res) => {
+    res.redirect('/find');
+})
 
-// Delete Booking
-app.delete('/bookings/:id', requireLogin, async (req, res) => {
-  await Booking.findByIdAndDelete(req.params.id);
-  res.redirect('/');
-});
+app.get('/create', (req,res) => {
+    res.status(200).render('create',{user: 'demo'})
+})
 
-// === RESTful APIs (No Auth) ===
+app.post('/create', (req, res) => {
+    handle_Create(req, res);
+})
 
-app.get('/api/bookings', async (req, res) => {
-  const { date, status, customerName } = req.query;
-  let query = {};
-  if (date) query.date = { $gte: new Date(date), $lt: new Date(date + 'T23:59:59') };
-  if (status) query.status = status;
-  if (customerName) query.customerName = new RegExp(customerName, 'i');
-  const bookings = await Booking.find(query).populate('table');
-  res.json(bookings);
-});
+app.get('/find', (req,res) => {
+    handle_Find(res, req.query.docs);
+})
 
-app.get('/api/bookings/:id', async (req, res) => {
-  const booking = await Booking.findById(req.params.id).populate('table');
-  res.json(booking);
-});
+app.get('/details', (req,res) => {
+    handle_Details(res, req.query);
+})
 
-app.post('/api/bookings', async (req, res) => {
-  const booking = await Booking.create(req.body);
-  res.status(201).json(booking);
-});
+app.get('/edit', (req,res) => {
+    handle_Edit(res, req.query);
+})
 
-app.put('/api/bookings/:id', async (req, res) => {
-  const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(booking);
-});
+app.post('/update', (req,res) => {
+    handle_Update(req, res, req.query);
+})
 
-app.delete('/api/bookings/:id', async (req, res) => {
-  await Booking.findByIdAndDelete(req.params.id);
-  res.status(204).send();
-});
+app.get('/{*splat}', (req,res) => {
+    //res.status(404).send(`${req.path} - Unknown request!`);
+    res.status(404).render('info', {message: `${req.path} - Unknown request!` });
+    /* info.ejs
+	<html>
+		<body>
+			<b><%= message %></b>
+			<p><a href="/">home</a></p>
+		</body>
+	</html>
+    */
+})
 
-// Bonus: Stats API
-app.get('/api/stats', async (req, res) => {
-  const today = new Date().toISOString().split('T')[0];
-  const count = await Booking.countDocuments({
-    date: { $gte: new Date(today), $lt: new Date(today + 'T23:59:59') }
-  });
-  res.json({ todayBookings: count });
-});
-
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+app.listen(app.listen(process.env.PORT || 8099));
