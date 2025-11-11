@@ -16,7 +16,7 @@ app.use(session({
 }));
 
 // MongoDB Config
-const mongourl = process.env.MONGODB_URI || 'mongodb://localhost:27017/bookmytable';
+const mongourl = '';
 const client = new MongoClient(mongourl);
 const dbName = 'bookmytable';
 const colBookings = 'bookings';
