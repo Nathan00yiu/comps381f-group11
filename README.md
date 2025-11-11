@@ -1,4 +1,5 @@
-# Restaurant Booking System - Group X
+# Restaurant Booking System - Group 11
+
 
 ## Info
 - Group Leader: Kaitlyn Yip (SID: 12345678)
