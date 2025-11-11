@@ -1,43 +1,24 @@
-# BookMyTable - Restaurant Booking System
+# Restaurant Booking System - Group X
 
-**Group No**: 11  
-**Members**:  
-- Chan Tai Man (SID: 12345678)  
-- Wong Siu Ying (SID: 87654321)  
+## Info
+- Name: Kaitlyn Yip (SID: 12345678)
+- Course: COMPS381F
 
----
-
-## Project Files
-- `server.js`: Express + MongoDB driver + cookie-session + CRUD + REST APIs
-- `package.json`: Dependencies
-- `views/`: EJS templates (login, list, create, edit, details, info)
-
----
+## Files
+- `server.js`: Express server with login, CRUD, REST API
+- `package.json`: express, ejs, mongodb, cookie-session
+- `views/`: EJS templates
 
 ## Cloud URL
-https://comps381f-group11.onrender.com
+http://localhost:8099 (local)
 
----
-
-## Operation Guide
-
-### Login
-- URL: `/login`
-- Use: `admin` / `admin123`
-
-### CRUD Web Pages
-| Action | How |
-|-------|-----|
-| **Create** | Click "Create New" → fill form |
-| **Read** | List + search by name/date/status |
-| **Update** | Click booking → "Edit" |
-| **Delete** | Click "Delete" on details |
-
-> **Logout button** on list page
-
-### RESTful APIs (cURL)
-```bash
-curl "https://comps381f-group11.onrender.com/api/bookings?date=2025-12-01"
-curl -X POST https://comps381f-group11.onrender.com/api/bookings -F "customerName=John" -F "date=2025-12-01" -F "time=19:00" -F "pax=4"
-curl -X PUT https://comps381f-group11.onrender.com/api/bookings/66f... -F "status=cancelled"
-curl -X DELETE https://comps381f-group11.onrender.com/api/bookings/66f...
+## Operation
+1. **Login**: `/login` → admin / 1234
+2. **CRUD**:
+   - Create: `/create`
+   - List: `/`
+   - Edit/Delete: via links
+3. **REST API**:
+   ```bash
+   curl http://localhost:8099/api/bookings
+   curl -X POST -d "name=Tom&phone=12345678&date=2025-12-01&time=18:00&pax=4" http://localhost:8099/api/bookings
