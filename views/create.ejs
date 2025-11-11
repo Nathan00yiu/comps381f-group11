@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Booking</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial; margin: 40px; background: #f4f4f4; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #28a745; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #218838; }
+    .back { display: inline-block; margin-top: 10px; color: #007bff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create New Booking</h2>
+    <form action="/create" method="POST" enctype="multipart/form-data">
+      <input type="text" name="customerName" placeholder="Customer Name" required>
+      <input type="tel" name="phone" placeholder="Phone" required>
+      <input type="date" name="date" required>
+      <input type="time" name="time" required>
+      <input type="number" name="pax" placeholder="Number of People" min="1" required>
+      <select name="status">
+        <option value="confirmed">Confirmed</option>
+        <option value="pending">Pending</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <textarea name="notes" placeholder="Notes (optional)" rows="3"></textarea>
+      <input type="file" name="photo" accept="image/*">
+      <button type="submit">Create Booking</button>
+    </form>
+    <a href="/" class="back">Back to List</a> | 
+    <form action="/logout" method="POST" style="display:inline">
+      <button type="submit" style="background:#dc3545; display:inline; width:auto; padding:5px 10px;">Logout</button>
+    </form>
+  </div>
+</body>
+</html>
