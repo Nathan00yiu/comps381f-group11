@@ -1,13 +1,72 @@
 <!DOCTYPE html>
-<html><head><title>Login</title></head><body>
-<div style="margin:50px">
-  <h2>BookMyTable Login</h2>
-  <% if (error) { %><p style="color:red"><%= error %></p><% } %>
-  <form method="POST" action="/login">
-    Username: <input name="username" required><br><br>
-    Password: <input name="password" type="password" required><br><br>
-    <button>Login</button>
-  </form>
-  <small>Use: <b>admin</b> / <b>admin123</b></small>
-</div>
-</body></html>
+<html>
+<head>
+  <title>Bookings List</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial; margin: 40px; background: #f4f4f4; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f8f9fa; }
+    .search { margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    input, select, button { padding: 8px; margin: 0 5px; }
+    button { background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .create-btn { background: #28a745; }
+    .create-btn:hover { background: #218838; }
+    .logout-btn { background: #dc3545; }
+    .logout-btn:hover { background: #c82333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Restaurant Bookings (<%= bookings.length %>)</h2>
+    <div style="margin-bottom:10px;">
+      <a href="/create"><button class="create-btn">Create New Booking</button></a>
+      <form action="/logout" method="POST" style="display:inline; margin-left:10px;">
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    </div>
+
+    <div class="search">
+      <form>
+        <input type="text" name="name" placeholder="Search name" value="<%= query.name %>">
+        <input type="date" name="date" value="<%= query.date %>">
+        <select name="status">
+          <option value="">All Status</option>
+          <option value="confirmed" <%= query.status==='confirmed'?'selected':'' %>>Confirmed</option>
+          <option value="pending" <%= query.status==='pending'?'selected':'' %>>Pending</option>
+          <option value="cancelled" <%= query.status==='cancelled'?'selected':'' %>>Cancelled</option>
+        </select>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Pax</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      <% bookings.forEach(b => { %>
+        <tr>
+          <td><a href="/details?_id=<%= b._id %>"><%= b.customerName %></a></td>
+          <td><%= b.phone %></td>
+          <td><%= new Date(b.date).toLocaleDateString() %></td>
+          <td><%= b.time %></td>
+          <td><%= b.pax %></td>
+          <td><span style="color:<%= b.status==='confirmed'?'green':b.status==='cancelled'?'red':'orange' %>"><%= b.status %></span></td>
+          <td>
+            <a href="/edit?_id=<%= b._id %>" style="color:#007bff; text-decoration:none;">Edit</a>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</body>
+</html>
