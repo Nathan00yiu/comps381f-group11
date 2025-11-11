@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<%- include('partials/header') %>
+<body>
+  <%- include('partials/nav') %>
+  <div class="container mt-4">
+    <h2>Bookings Dashboard</h2>
+    <a href="/bookings/create" class="btn btn-success mb-3">New Booking</a>
+
+    <!-- Search -->
+    <form class="row g-2 mb-3">
+      <div class="col"><input type="text" name="customerName" class="form-control" placeholder="Name" value="<%= query.customerName %>"></div>
+      <div class="col"><input type="date" name="date" class="form-control" value="<%= query.date %>"></div>
+      <div class="col">
+        <select name="status" class="form-control">
+          <option value="">All Status</option>
+          <option value="confirmed" <%= query.status==='confirmed'?'selected':'' %>>Confirmed</option>
+          <option value="cancelled" <%= query.status==='cancelled'?'selected':'' %>>Cancelled</option>
+        </select>
+      </div>
+      <div class="col"><button class="btn btn-primary">Search</button></div>
+    </form>
+
+    <div class="row">
+      <% bookings.forEach(b => { %>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5><%= b.customerName %> (<%= b.pax %> pax)</h5>
+              <p><strong>Date:</strong> <%= b.date.toISOString().split('T')[0] %> <%= b.time %><br>
+                 <strong>Table:</strong> <%= b.table?.number || 'N/A' %><br>
+                 <strong>Status:</strong> <span class="badge bg-<%= b.status==='confirmed'?'success':'danger' %>"><%= b.status %></span></p>
+              <a href="/bookings/edit/<%= b._id %>" class="btn btn-sm btn-warning">Edit</a>
+              <form method="POST" action="/bookings/<%= b._id %>?_method=DELETE" style="display:inline;">
+                <button class="btn btn-sm btn-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>
