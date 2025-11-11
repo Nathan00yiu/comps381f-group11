@@ -1,0 +1,22 @@
+{
+  "name": "bookmytable",
+  "version": "1.0.0",
+  "description": "Restaurant Booking System - COMP S381F Group Project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "ejs": "^3.1.10",
+    "express-session": "^1.18.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "method-override": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
