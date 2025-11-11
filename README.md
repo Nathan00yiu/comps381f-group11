@@ -1,7 +1,8 @@
 # Restaurant Booking System - Group X
 
 ## Info
-- Name: Kaitlyn Yip (SID: 12345678)
+- Group Leader: Kaitlyn Yip (SID: 12345678)
+- Group Member: Lam Ching Yiu
 - Course: COMPS381F
 
 ## Files
