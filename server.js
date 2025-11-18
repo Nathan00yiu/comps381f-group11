@@ -8,7 +8,7 @@ app.use(formidable());
 app.use(session({ secret: 'secretkey', resave: false, saveUninitialized: false }));
 app.set('view engine', 'ejs');
 
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb+srv://lamnathan645321_db_user:Student@cluster0.rmmzq5s.mongodb.net/?appName=Cluster0';
 const client = new MongoClient(url);
 const dbName = 'restaurantdb';
 
@@ -108,4 +108,7 @@ app.delete('/api/bookings/:id', async (req, res) => {
   res.json({status: 'deleted'});
 });
 
-app.listen(8099, () => console.log('http://localhost:8099'));
+//app.listen(8099, () => console.log('http://localhost:8099'));
+app.listen(process.env.PORT || 8099, () => {
+  console.log(`Server running on port ${process.env.PORT || 8099}`);
+});
