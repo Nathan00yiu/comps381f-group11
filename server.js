@@ -8,7 +8,7 @@ app.use(formidable());
 app.use(session({ secret: 'secretkey', resave: false, saveUninitialized: false }));
 app.set('view engine', 'ejs');
 
-const url = 'mongodb+srv://lamnathan645321_db_user:Student@cluster0.rmmzq5s.mongodb.net/?appName=Cluster0';
+const url = 'mongodb://localhost:27017';
 const client = new MongoClient(url);
 const dbName = 'restaurantdb';
 
