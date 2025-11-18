@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('cookie-session');
@@ -20,7 +19,8 @@ const requireLogin = (req, res, next) => {
 };
 
 // === LOGIN ===
-app.get('/login', (req, res) => res.render('login'));
+app.get('/login', (req, res) => res.render('login', { user: null })); // ← safe for header
+
 app.post('/login', async (req, res) => {
   await client.connect();
   const user = await client.db(dbName).collection('users').findOne({
@@ -30,19 +30,28 @@ app.post('/login', async (req, res) => {
   if (user) {
     req.session.user = user.username;
     res.redirect('/');
-  } else res.render('login', {error: 'Invalid login'});
+  } else res.render('login', { error: 'Invalid login', user: null });
 });
+
 app.get('/logout', (req, res) => { req.session = null; res.redirect('/login'); });
 
 // === HOME (List Bookings) ===
 app.get('/', requireLogin, async (req, res) => {
   await client.connect();
-  const bookings = await client.db(dbName).collection('bookings').find().toArray();
-  res.render('list', { bookings });
+  const bookings = await client.db(dbName).collection('bookings')
+    .find()
+    .sort({ date: 1, time: 1 })
+    .toArray();
+  res.render('list', { 
+    bookings, 
+    user: req.session.user,
+    search: {}  // ← ADD THIS LINE
+  });
 });
 
 // === CREATE ===
-app.get('/create', requireLogin, (req, res) => res.render('create'));
+app.get('/create', requireLogin, (req, res) => res.render('create', { user: req.session.user }));
+
 app.post('/create', requireLogin, async (req, res) => {
   await client.connect();
   const doc = {
@@ -53,63 +62,96 @@ app.post('/create', requireLogin, async (req, res) => {
     pax: req.fields.pax
   };
   await client.db(dbName).collection('bookings').insertOne(doc);
-  res.render('info', {message: 'Booking created'});
+  res.render('info', { message: '...', user: req.session.user });
 });
 
 // === READ (Details) ===
 app.get('/details/:id', requireLogin, async (req, res) => {
   await client.connect();
-  const booking = await client.db(dbName).collection('bookings').findOne({_id: new ObjectId(req.params.id)});
-  res.render('details', {booking});
+  const booking = await client.db(dbName).collection('bookings')
+    .findOne({ _id: new ObjectId(req.params.id) });
+  res.render('details', { booking, user: req.session.user }); 
 });
 
 // === UPDATE ===
 app.get('/edit/:id', requireLogin, async (req, res) => {
   await client.connect();
-  const booking = await client.db(dbName).collection('bookings').findOne({_id: new ObjectId(req.params.id)});
-  res.render('edit', {booking});
+  const booking = await client.db(dbName).collection('bookings')
+    .findOne({ _id: new ObjectId(req.params.id) });
+  res.render('edit', { booking, user: req.session.user });
 });
+
 app.post('/update/:id', requireLogin, async (req, res) => {
   await client.connect();
   await client.db(dbName).collection('bookings').updateOne(
-    {_id: new ObjectId(req.params.id)},
-    {$set: req.fields}
+    { _id: new ObjectId(req.params.id) },
+    { $set: req.fields }
   );
-  res.render('info', {message: 'Booking updated'});
+  res.render('info', { message: '...', user: req.session.user });
 });
 
 // === DELETE ===
 app.get('/delete/:id', requireLogin, async (req, res) => {
   await client.connect();
-  await client.db(dbName).collection('bookings').deleteOne({_id: new ObjectId(req.params.id)});
+  await client.db(dbName).collection('bookings').deleteOne({ _id: new ObjectId(req.params.id) });
   res.redirect('/');
 });
+
+// === SEARCH BOOKINGS ===
+app.get('/search', requireLogin, async (req, res) => {
+  await client.connect();
+  const query = {};
+
+  // Build dynamic query from URL params
+  if (req.query.name) query.name = new RegExp(req.query.name, 'i'); // case-insensitive
+  if (req.query.phone) query.phone = new RegExp(req.query.phone, 'i');
+  if (req.query.date) query.date = req.query.date;
+  if (req.query.pax) query.pax = parseInt(req.query.pax);
+
+  const bookings = await client.db(dbName).collection('bookings')
+    .find(query)
+    .sort({ date: 1, time: 1 })
+    .toArray();
+
+  res.render('list', { 
+    bookings, 
+    user: req.session.user,
+    search: req.query  // keep search values in form
+  });
+});
+
+
 
 // === RESTful API (No Auth) ===
 app.get('/api/bookings', async (req, res) => {
   await client.connect();
-  const data = await client.db(dbName).collection('bookings').find().toArray();
+  const data = await client.db(dbName).collection('bookings')
+    .find()
+    .sort({ date: 1, time: 1 })
+    .toArray();
   res.json(data);
 });
+
 app.post('/api/bookings', async (req, res) => {
   await client.connect();
   const result = await client.db(dbName).collection('bookings').insertOne(req.fields);
-  res.json({insertedId: result.insertedId});
+  res.json({ insertedId: result.insertedId });
 });
+
 app.put('/api/bookings/:id', async (req, res) => {
   await client.connect();
   await client.db(dbName).collection('bookings').updateOne(
-    {_id: new ObjectId(req.params.id)}, {$set: req.fields}
+    { _id: new ObjectId(req.params.id) }, { $set: req.fields }
   );
-  res.json({status: 'updated'});
-});
-app.delete('/api/bookings/:id', async (req, res) => {
-  await client.connect();
-  await client.db(dbName).collection('bookings').deleteOne({_id: new ObjectId(req.params.id)});
-  res.json({status: 'deleted'});
+  res.json({ status: 'updated' });
 });
 
-//app.listen(8099, () => console.log('http://localhost:8099'));
+app.delete('/api/bookings/:id', async (req, res) => {
+  await client.connect();
+  await client.db(dbName).collection('bookings').deleteOne({ _id: new ObjectId(req.params.id) });
+  res.json({ status: 'deleted' });
+});
+
 app.listen(process.env.PORT || 8099, () => {
   console.log(`Server running on port ${process.env.PORT || 8099}`);
 });

@@ -14,8 +14,6 @@
 ## Cloud URL
 http://localhost:8099 (local)
 
-s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net (cloud)
-
 ## Operation
 1. **Login**: `/login` → admin / 1234
 2. **CRUD**:
