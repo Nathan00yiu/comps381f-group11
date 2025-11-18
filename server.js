@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('cookie-session');
@@ -109,7 +108,4 @@ app.delete('/api/bookings/:id', async (req, res) => {
   res.json({status: 'deleted'});
 });
 
-//app.listen(8099, () => console.log('http://localhost:8099'));
-app.listen(process.env.PORT || 8099, () => {
-  console.log(`Server running on port ${process.env.PORT || 8099}`);
-});
+app.listen(8099, () => console.log('http://localhost:8099'));
