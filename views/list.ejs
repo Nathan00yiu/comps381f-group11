@@ -1,12 +1,36 @@
-html<h2>Bookings</h2>
-<a href="/create">+ New</a> | <a href="/logout">Logout</a>
-<ul>
-<% bookings.forEach(b => { %>
-  <li>
-    <%= b.name %> (<%= b.pax %>p) @ <%= b.date %> <%= b.time %>
-    <a href="/details/<%= b._id %>">View</a>
-    <a href="/delete/<%= b._id %>" onclick="return confirm('Delete?')">Delete</a>
-  </li>
-<% }) %>
-</ul>
+<%- include('header') %>
 
+<h2>Restaurant Bookings</h2>
+
+<form method="GET" action="/search" style="margin:20px 0; padding:15px; background:#f8f9fa; border-radius:8px;">
+  <input type="text" name="name" placeholder="Name" value="<%= (search && search.name) || '' %>" style="margin:5px; padding:8px;">
+  <input type="text" name="phone" placeholder="Phone" value="<%= (search && search.phone) || '' %>" style="margin:5px; padding:8px;">
+  <input type="date" name="date" value="<%= (search && search.date) || '' %>" style="margin:5px; padding:8px;">
+  <input type="number" name="pax" placeholder="Pax" min="1" value="<%= (search && search.pax) || '' %>" style="margin:5px; padding:8px;">
+  <button type="submit" style="padding:8px 16px; background:#1abc9c; color:white; border:none; border-radius:4px;">Search</button>
+  <a href="/" style="margin-left:10px; color:#e74c3c; text-decoration:none;">Clear</a>
+</form>
+
+<table border="1" style="width:100%; border-collapse:collapse;">
+  <tr style="background:#2c3e50; color:white;">
+    <th>Name</th><th>Phone</th><th>Date</th><th>Time</th><th>Pax</th><th>Actions</th>
+  </tr>
+  <% if (!bookings || bookings.length === 0) { %>
+    <tr><td colspan="6" style="text-align:center; padding:20px; color:#777;">No bookings found.</td></tr>
+  <% } else { %>
+    <% bookings.forEach(b => { %>
+      <tr>
+        <td><%= b.name %></td>
+        <td><%= b.phone %></td>
+        <td><%= b.date %></td>
+        <td><%= b.time %></td>
+        <td><%= b.pax %></td>
+        <td>
+          <a href="/details/<%= b._id %>">View</a> |
+          <a href="/edit/<%= b._id %>">Edit</a> |
+          <a href="/delete/<%= b._id %>" onclick="return confirm('Delete?')">Delete</a>
+        </td>
+      </tr>
+    <% }) %>
+  <% } %>
+</table>
