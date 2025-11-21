@@ -1,0 +1,12 @@
+<h1>Reservations (Member View)</h1>
+<a href="/logout"><button>Logout</button></a>
+<table border="1">
+  <tr><th>Name</th><th>Date</th><th>Time</th></tr>
+  <% reservations.forEach(r => { %>
+    <tr>
+      <td><%= r.name %></td>
+      <td><%= r.date %></td>
+      <td><%= r.time %></td>
+    </tr>
+  <% }) %>
+</table>
