@@ -1,0 +1,41 @@
+connection string to mongodb:
+
+mongosh "mongodb+srv://lamnathan645321_db_user:Student@cluster0.rmmzq5s.mongodb.net/restaurantdb"
+
+
+
+1. USER MANAGEMENT (collection: users)
+Add a new user:
+db.users.insertOne({username:"Amy", password:"123456", role:"customer"})
+
+Add admin account:
+db.users.insertOne({username:"admin", password:"123456", role:"admin"})
+
+Change user password:
+db.users.updateOne({username:"kate"}, {$set: {password:"newpass123"}})
+
+Change admin password:
+db.users.updateOne({username:"admin"}, {$set: {password:"admin2025"}})
+
+Delete a user:
+db.users.deleteOne({username:"kate"})
+
+Delete admin:
+db.users.deleteOne({username:"admin"})
+
+List all users:
+db.users.find().pretty()
+
+List only customers:
+db.users.find({role:"customer"}).pretty()
+
+
+2. RESERVATION MANAGEMENT (collection: bookings)
+Add new reservation
+db.bookings.insertOne({name:"Tom", phone:"91234567", date:"2025-12-25", time:"19:00", pax:4})
+
+db.bookings.updateOne...
+db.bookings.deleteOne...
+db.bookings.deleteMany({})
+db.bookings.find().sort({date:1, time:1}).pretty()
+db.bookings.find({date:"2025-11-21"}).pretty()
