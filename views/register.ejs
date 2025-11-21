@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+  <style>
+    body { font-family: Arial; max-width: 400px; margin:50px auto; padding:20px; background:#f9f9f9; }
+    input, button { width:100%; padding:12px; margin:8px 0; box-sizing:border-box; }
+    button { background:#007bff; color:white; border:none; cursor:pointer; }
+    .error { color:red; }
+    a { color:#007bff; }
+  </style>
+</head>
+<body>
+  <h2>Create Account</h2>
+
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+
+  <form method="POST" action="/register">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="password" name="password2" placeholder="Confirm Password" required>
+    <button type="submit">Register</button>
+  </form>
+
+  <p>Already have an account? <a href="/login">Login here</a></p>
+</body>
+</html>
