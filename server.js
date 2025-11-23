@@ -183,8 +183,21 @@ app.get('/api/bookings', async (req, res) => {
 });
 
 app.post('/api/bookings', async (req, res) => {
-  const result = await db.collection('bookings').insertOne(req.fields);
-  res.json({ insertedId: result.insertedId });
+  try {
+    const doc = {
+      name: req.body.name,
+      phone: req.body.phone,
+      date: req.body.date,
+      time: req.body.time,
+      pax: parseInt(req.body.pax) || 1,
+      createdAt: new Date()
+    };
+    const result = await db.collection('bookings').insertOne(doc);
+    res.status(201).json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // === USER API — NOW WORKS PERFECTLY! ===
@@ -207,9 +220,64 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 
+
+
+app.get('/api/users/username/:username', async (req, res) => {
+  try {
+    const user = await usersCollection.findOne({ username: req.params.username });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { password, ...safe } = user;
+    res.json(safe);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE (PATCH) by username
+app.patch('/api/users/username/:username', async (req, res) => {
+  try {
+    const result = await usersCollection.updateOne(
+      { username: req.params.username },
+      { $set: req.body }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true, modified: result.modifiedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// FULL REPLACE (PUT) by username
+app.put('/api/users/username/:username', async (req, res) => {
+  try {
+    const { password, role } = req.body;
+    if (!password) return res.status(400).json({ error: 'password required' });
+    const result = await usersCollection.replaceOne(
+      { username: req.params.username },
+      { username: req.params.username, password, role: role || 'customer', createdAt: new Date() }
+    );
+    if (result.matchedCount === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE by username
+app.delete('/api/users/username/:username', async (req, res) => {
+  try {
+    const result = await usersCollection.deleteOne({ username: req.params.username });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ success: true, deleted: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ===================== START SERVER =====================
 const PORT = process.env.PORT || 8099;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
