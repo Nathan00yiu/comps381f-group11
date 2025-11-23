@@ -84,6 +84,25 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// CREATE user
+app.post('/api/users', async (req, res) => {
+  try {
+    const { username, password, role = 'customer' } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'username & password required' });
+    
+    const exists = await usersCollection.findOne({ username });
+    if (exists) return res.status(409).json({ error: 'Username already taken' });
+    
+    const result = await usersCollection.insertOne({
+      username, password, role, createdAt: new Date()
+    });
+    res.status(201).json({ success: true, insertedId: result.insertedId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // === LOGIN ===
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
@@ -304,6 +323,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
