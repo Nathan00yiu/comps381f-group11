@@ -6,18 +6,24 @@ const formidable = require('express-formidable');
 
 const app = express();
 
-// ===================== MIDDLEWARE =====================
-// Order matters!
-app.use(formidable());                                      // handles form-data + file uploads → req.fields
-app.use(express.json());                                     // handles raw JSON (for /api/users POST)
-app.use(express.urlencoded({ extended: true }));             // handles traditional forms
+// ===================== CRITICAL FIX: Bypass formidable for API =====================
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+    next();                                      // skip formidable entirely
+  } else {
+    formidable()(req, res, next);                // only for HTML forms & file uploads
+  }
+});
+
+app.use(express.json());                            // now safe to use for JSON APIs
+app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
   name: 'session',
   secret: 'secretkey',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }     // 1 day
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.set('view engine', 'ejs');
@@ -234,3 +240,4 @@ app.listen(PORT, () => {
   console.log(`Test user creation:`);
   console.log(`curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
