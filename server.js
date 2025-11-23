@@ -205,15 +205,15 @@ app.get('/api/users', async (req, res) => {
   try {
     const users = await usersCollection
       .find({})
-      .project({ username: 1, role: 1, _id: 1 })
+      .project({ _id: 1, username: 1, role: 1 })  // ← _id included
       .toArray();
 
     const role = req.query.role;
     const filtered = role ? users.filter(u => u.role === role) : users;
 
-    // ONE USER PER LINE — super clean!
+    // Clean, one user per line, WITH _id
     const output = filtered
-      .map(u => `User: ${u.username.padEnd(15)} Role: ${u.role}`)
+      .map(u => `ID: ${u._id} | User: ${u.username.padEnd(15)} | Role: ${u.role}`)
       .join('\n');
 
     res.type('text').send(output || 'No users found');
@@ -282,6 +282,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
