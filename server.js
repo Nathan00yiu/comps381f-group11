@@ -177,9 +177,32 @@ app.get('/search', requireLogin, async (req, res) => {
 });
 
 // === BOOKING API ===
+// CLEAN & BEAUTIFUL LIST of all bookings
 app.get('/api/bookings', async (req, res) => {
-  const data = await db.collection('bookings').find().sort({ date: 1, time: 1 }).toArray();
-  res.json(data);
+  try {
+    let bookings = await db.collection('bookings')
+      .find({})
+      .sort({ date: 1, time: 1 })
+      .toArray();
+
+    // Optional: filter by date (e.g. ?date=2025-12-25)
+    if (req.query.date) {
+      bookings = bookings.filter(b => b.date === req.query.date);
+    }
+
+    if (bookings.length === 0) {
+      return res.type('text').send('No bookings found');
+    }
+
+    const lines = bookings.map(b => {
+      const id = b._id.toString().slice(-6); // last 6 chars of ID (short & readable)
+      return `ID: ${id} | ${b.date} ${b.time} | ${b.name.padEnd(12)} | Pax: ${b.pax.toString().padEnd(2)} | Phone: ${b.phone || 'N/A'}`;
+    });
+
+    res.type('text').send(lines.join('\n'));
+  } catch (err) {
+    res.status(500).send('Error: ' + err.message);
+  }
 });
 
 app.post('/api/bookings', async (req, res) => {
@@ -282,6 +305,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
