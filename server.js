@@ -1,5 +1,4 @@
 // server.js
-// server.js
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('cookie-session');
@@ -7,24 +6,34 @@ const formidable = require('express-formidable');
 
 const app = express();
 
-// ===================== CORRECT MIDDLEWARE ORDER (THIS IS THE FINAL FIX) =====================
+// ===================== DATABASE (connect once) =====================
+const url = 'mongodb+srv://lamnathan645321_db_user:Student@cluster0.rmmzq5s.mongodb.net/restaurantdb';
+const client = new MongoClient(url);
+let db;
+let usersCollection;
 
-// 1. First: Handle JSON API routes → completely bypass everything else
-app.use('/api', express.json());        // ← ONLY for /api routes, parses JSON
+async function startServer() {
+  await client.connect();
+  db = client.db('restaurantdb');
+  usersCollection = db.collection('users');
+  console.log('MongoDB connected');
+}
+startServer();
 
-// 2. Second: Handle form submissions (including file uploads) → ONLY for non-API
+// ===================== MIDDLEWARE (THE ONLY ORDER THAT WORKS) =====================
+
+// 1. JSON API routes only — bypass everything
+app.use('/api', express.json());
+
+// 2. All other routes (HTML forms, file uploads) — use formidable
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/api')) {
-    return next();                       // skip formidable for API routes
+    return next(); // skip formidable for API routes
   }
-  formidable({
-    encoding: 'utf-8',
-    keepExtensions: true,
-    maxFieldsSize: 10 * 1024 * 1024   // 10MB limit
-  })(req, res, next);
+  formidable()(req, res, next);
 });
 
-// 3. Session & views (safe now)
+// 3. Session
 app.use(session({
   name: 'session',
   secret: 'secretkey',
@@ -34,27 +43,6 @@ app.use(session({
 }));
 
 app.set('view engine', 'ejs');
-
-// ===================== DATABASE CONNECTION (once!) =====================
-const url = 'mongodb+srv://lamnathan645321_db_user:Student@cluster0.rmmzq5s.mongodb.net/restaurantdb?appName=Cluster0';
-const client = new MongoClient(url);
-const dbName = 'restaurantdb';
-
-let db;
-let usersCollection;   // for /api/users
-
-async function connectToDB() {
-  try {
-    await client.connect();
-    db = client.db(dbName);
-    usersCollection = db.collection('users');
-    console.log('MongoDB connected successfully');
-  } catch (err) {
-    console.error('Failed to connect to MongoDB:', err);
-    process.exit(1);
-  }
-}
-connectToDB();
 
 // ===================== AUTH MIDDLEWARE =====================
 const requireLogin = (req, res, next) => {
@@ -70,19 +58,16 @@ app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
   const { username, password, password2 } = req.fields || {};
 
-  if (!username || !password || !password2) {
-    return res.render('register', { error: 'All fields are required' });
-  }
-  if (password !== password2) {
+  if (!username || !password || !password2)
+    return res.render('register', { error: 'All fields required' });
+  if (password !== password2)
     return res.render('register', { error: 'Passwords do not match' });
-  }
-  if (password.length < 4) {
-    return res.render('register', { error: 'Password too short (min 4 chars)' });
-  }
+  if (password.length < 4)
+    return res.render('register', { error: 'Password too short' });
 
   try {
     const exists = await usersCollection.findOne({ username });
-    if (exists) return res.render('register', { error: 'Username already taken' });
+    if (exists) return res.render('register', { error: 'Username taken' });
 
     await usersCollection.insertOne({
       username,
@@ -108,13 +93,9 @@ app.post('/login', async (req, res) => {
 
   if (user) {
     req.session.user = { username: user.username, role: user.role || 'customer' };
-    if (user.role === 'admin' || user.role === 'staff') {
-      return res.redirect('/list');
-    } else {
-      return res.redirect('/clist');
-    }
+    res.redirect(user.role === 'admin' || user.role === 'staff' ? '/list' : '/clist');
   } else {
-    res.render('login', { error: 'Invalid username or password' });
+    res.render('login', { error: 'Invalid credentials' });
   }
 });
 
@@ -125,40 +106,27 @@ app.get('/logout', (req, res) => {
 
 // === HOME ===
 app.get('/', (req, res) => {
-  if (req.session.user) {
-    return req.session.user.role === 'admin' || req.session.user.role === 'staff'
-      ? res.redirect('/list')
-      : res.redirect('/clist');
-  }
-  res.render('login', { error: null });
+  if (!req.session.user) return res.render('login', { error: null });
+  res.redirect(req.session.user.role === 'admin' || req.session.user.role === 'staff' ? '/list' : '/clist');
 });
 
-// === ADMIN LIST ===
+// === ADMIN & CUSTOMER LISTS ===
 app.get('/list', requireLogin, async (req, res) => {
   if (!['admin', 'staff'].includes(req.session.user.role)) return res.redirect('/clist');
-
-  const bookings = await db.collection('bookings')
-    .find()
-    .sort({ date: 1, time: 1 })
-    .toArray();
-
+  const bookings = await db.collection('bookings').find().sort({ date: 1, time: 1 }).toArray();
   res.render('list', { bookings, user: req.session.user.username, search: {} });
 });
 
-// === CUSTOMER LIST ===
 app.get('/clist', requireLogin, async (req, res) => {
   const bookings = await db.collection('bookings')
     .find({ name: req.session.user.username })
     .sort({ date: 1, time: 1 })
     .toArray();
-
   res.render('clist', { bookings, user: req.session.user.username });
 });
 
 // === CREATE BOOKING ===
-app.get('/create', requireLogin, (req, res) => {
-  res.render('create', { user: req.session.user.username });
-});
+app.get('/create', requireLogin, (req, res) => res.render('create', { user: req.session.user.username }));
 
 app.post('/create', requireLogin, async (req, res) => {
   const doc = {
@@ -173,7 +141,7 @@ app.post('/create', requireLogin, async (req, res) => {
   res.redirect(req.session.user.role === 'admin' ? '/list' : '/clist');
 });
 
-// === DETAILS / EDIT / UPDATE / DELETE / SEARCH ===
+// === CRUD OPERATIONS ===
 app.get('/details/:id', requireLogin, async (req, res) => {
   const booking = await db.collection('bookings').findOne({ _id: new ObjectId(req.params.id) });
   res.render('details', { booking, user: req.session.user.username });
@@ -208,7 +176,7 @@ app.get('/search', requireLogin, async (req, res) => {
   res.render('list', { bookings, user: req.session.user.username, search: req.query });
 });
 
-// === BOOKING API (existing) ===
+// === BOOKING API ===
 app.get('/api/bookings', async (req, res) => {
   const data = await db.collection('bookings').find().sort({ date: 1, time: 1 }).toArray();
   res.json(data);
@@ -219,33 +187,29 @@ app.post('/api/bookings', async (req, res) => {
   res.json({ insertedId: result.insertedId });
 });
 
-// === USER API – THIS IS THE ONE YOU WANTED! ===
+// === USER API — NOW WORKS PERFECTLY! ===
 app.post('/api/users', async (req, res) => {
   try {
-    console.log('Creating user via API:', req.body);
+    console.log('API: Creating user →', req.body);
     const result = await usersCollection.insertOne({
       ...req.body,
       createdAt: new Date()
     });
     res.status(201).json({ success: true, insertedId: result.insertedId });
   } catch (err) {
-    console.error(err);
+    console.error('API Error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// (Optional) GET all users – for testing
 app.get('/api/users', async (req, res) => {
-  const all = await usersCollection.find({}).toArray();
-  res.json(all);
+  const users = await usersCollection.find({}).toArray();
+  res.json(users);
 });
 
 // ===================== START SERVER =====================
 const PORT = process.env.PORT || 8099;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`Test user creation:`);
-  console.log(`curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
+  console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
-
-
