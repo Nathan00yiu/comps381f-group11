@@ -1,31 +1,33 @@
-# Create a new customer
-curl -X POST YOUR_AZURE_URL/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"username":"kate","password":"123456","role":"customer"}'
+https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net
 
-# Create a staff member
-curl -X POST YOUR_AZURE_URL/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"username":"staff1","password":"123456","role":"staff"}'
+# Create a new user
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users   -H "Content-Type: application/json"   -d '{"username":"Amy","password":"123456","role":"customer"}'
+
 
 # List all users (clean format)
-curl YOUR_AZURE_URL/api/users
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users
 
-# List only customers
-curl YOUR_AZURE_URL/api/users?role=customer
-
-# List only admin/staff
-curl YOUR_AZURE_URL/api/users?role=admin
+# List only one role
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users?role=admin
 
 # Change password
-curl -X PATCH YOUR_AZURE_URL/api/users/username/kate \
+curl -X PATCH https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy \
   -H "Content-Type: application/json" \
-  -d '{"password":"newpass999"}'
+  -d '{"password":"1234"}'
 
-# Change role
-curl -X PATCH YOUR_AZURE_URL/api/users/username/kate \
-  -H "Content-Type: application/json" \
-  -d '{"role":"staff"}'
 
 # Delete a user
-curl -X DELETE YOUR_AZURE_URL/api/users/username/kate
+curl -X DELETE https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy
+
+# List all bookings (sorted by date → time)
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
+
+
+# Add new reservation
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tom","phone":"91234567","date":"2025-12-25","time":"19:00","pax":4}'
+
+
+
+
