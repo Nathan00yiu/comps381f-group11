@@ -1,4 +1,5 @@
 // server.js
+// server.js
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('cookie-session');
@@ -6,18 +7,24 @@ const formidable = require('express-formidable');
 
 const app = express();
 
-// ===================== CRITICAL FIX: Bypass formidable for API =====================
+// ===================== CORRECT MIDDLEWARE ORDER (THIS IS THE FINAL FIX) =====================
+
+// 1. First: Handle JSON API routes → completely bypass everything else
+app.use('/api', express.json());        // ← ONLY for /api routes, parses JSON
+
+// 2. Second: Handle form submissions (including file uploads) → ONLY for non-API
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/api')) {
-    next();                                      // skip formidable entirely
-  } else {
-    formidable()(req, res, next);                // only for HTML forms & file uploads
+    return next();                       // skip formidable for API routes
   }
+  formidable({
+    encoding: 'utf-8',
+    keepExtensions: true,
+    maxFieldsSize: 10 * 1024 * 1024   // 10MB limit
+  })(req, res, next);
 });
 
-app.use(express.json());                            // now safe to use for JSON APIs
-app.use(express.urlencoded({ extended: true }));
-
+// 3. Session & views (safe now)
 app.use(session({
   name: 'session',
   secret: 'secretkey',
@@ -240,4 +247,5 @@ app.listen(PORT, () => {
   console.log(`Test user creation:`);
   console.log(`curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
