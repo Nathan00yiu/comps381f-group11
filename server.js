@@ -216,10 +216,15 @@ app.post('/api/users', async (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
-  const users = await usersCollection.find({}).toArray();
-  res.json(users);
-});
+  try {
+    const users = await usersCollection.find({}).toArray();
 
+    // Clean & safe output: hide password + only show needed fields
+    const cleanUsers = users.map(user => ({
+      username: user.username,
+      role: user.role,
+      createdAt: user.createdAt || "N/A"
+    }));
 
 
 app.get('/api/users/username/:username', async (req, res) => {
@@ -280,4 +285,5 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
