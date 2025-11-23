@@ -222,22 +222,6 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await usersCollection
-      .find({})
-      .project({ username: 1, role: 1, _id: 0 })   // MongoDB projection: only get these fields
-      .toArray();
-
-    // Optional: filter by role (e.g. ?role=customer)
-    const role = req.query.role;
-    const result = role ? users.filter(u => u.role === role) : users;
-
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 
 app.get('/api/users/username/:username', async (req, res) => {
@@ -298,6 +282,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
