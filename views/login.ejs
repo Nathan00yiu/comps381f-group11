@@ -1,7 +1,35 @@
-<h2>Restaurant Booking System - Login </h2>
-<% if (typeof error !== 'undefined') { %><p style="color:red"><%= error %></p><% } %>
-<form method="POST">
-  Username: <input name="username"><br>
-  Password: <input name="password" type="password"><br>
-  <button>Login</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - BookMyTable</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 350px; }
+    h2 { text-align: center; color: #333; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .error { color: red; text-align: center; margin: 10px 0; }
+    .register { text-align: center; margin-top: 20px; }
+    a { color: #007bff; text-decoration: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login to Deli-Restaurant Booking System</h2>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    <form action="/login" method="POST">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div class="register">
+      <p>Don't have an account? <a href="/register">Register here</a></p>
+    </div>
+  </div>
+</body>
+</html>

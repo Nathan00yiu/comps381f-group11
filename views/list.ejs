@@ -1,15 +1,34 @@
 <%- include('header') %>
-
-<h2>Restaurant Bookings</h2>
+<h2>Bookings</h2>
 
 <form method="GET" action="/search" style="margin:20px 0; padding:15px; background:#f8f9fa; border-radius:8px;">
   <input type="text" name="name" placeholder="Name" value="<%= (search && search.name) || '' %>" style="margin:5px; padding:8px;">
   <input type="text" name="phone" placeholder="Phone" value="<%= (search && search.phone) || '' %>" style="margin:5px; padding:8px;">
-  <input type="date" name="date" value="<%= (search && search.date) || '' %>" style="margin:5px; padding:8px;">
+
+  <!-- Date input as text + formatted as yyyy/MM/dd -->
+  <input 
+    type="text" 
+    name="date" 
+    placeholder="yyyy/MM/dd" 
+    value="<%= (search && search.date) ? new Date(search.date).toISOString().split('T')[0].replace(/-/g, '/') : '' %>"
+    pattern="\d{4}/\d{2}/\d{2}"
+    style="margin:5px; padding:8px; width:130px;"
+  >
+
   <input type="number" name="pax" placeholder="Pax" min="1" value="<%= (search && search.pax) || '' %>" style="margin:5px; padding:8px;">
   <button type="submit" style="padding:8px 16px; background:#1abc9c; color:white; border:none; border-radius:4px;">Search</button>
   <a href="/" style="margin-left:10px; color:#e74c3c; text-decoration:none;">Clear</a>
 </form>
+
+<!-- Auto-convert yyyy/MM/dd → yyyy-MM-dd before submit (so MongoDB understands) -->
+<script>
+  document.querySelector('form').addEventListener('submit', function() {
+    const dateInput = this.querySelector('input[name="date"]');
+    if (dateInput.value.trim()) {
+      dateInput.value = dateInput.value.trim().replace(/\//g, '-');
+    }
+  });
+</script>
 
 <table border="1" style="width:100%; border-collapse:collapse;">
   <tr style="background:#2c3e50; color:white;">
@@ -22,7 +41,8 @@
       <tr>
         <td><%= b.name %></td>
         <td><%= b.phone %></td>
-        <td><%= b.date %></td>
+        <!-- This line formats the date as yyyy/MM/dd -->
+        <td><%= new Date(b.date).toISOString().split('T')[0].replace(/-/g, '/') %></td>
         <td><%= b.time %></td>
         <td><%= b.pax %></td>
         <td>
