@@ -201,17 +201,24 @@ app.post('/api/bookings', async (req, res) => {
 });
 
 // === USER API — NOW WORKS PERFECTLY! ===
-app.post('/api/users', async (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
-    console.log('API: Creating user →', req.body);
-    const result = await usersCollection.insertOne({
-      ...req.body,
-      createdAt: new Date()
-    });
-    res.status(201).json({ success: true, insertedId: result.insertedId });
+    const users = await usersCollection
+      .find({})
+      .project({ username: 1, role: 1, _id: 1 })
+      .toArray();
+
+    const role = req.query.role;
+    const filtered = role ? users.filter(u => u.role === role) : users;
+
+    // ONE USER PER LINE — super clean!
+    const output = filtered
+      .map(u => `User: ${u.username.padEnd(15)} Role: ${u.role}`)
+      .join('\n');
+
+    res.type('text').send(output || 'No users found');
   } catch (err) {
-    console.error('API Error:', err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).send('Error: ' + err.message);
   }
 });
 
@@ -291,6 +298,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
