@@ -1,31 +1,31 @@
 # Create a new customer
-curl -X POST http://localhost:8099/api/users \
+curl -X POST YOUR_AZURE_URL/api/users \
   -H "Content-Type: application/json" \
-  -d '{"username":"Amy","password":"123456","role":"customer"}'
+  -d '{"username":"kate","password":"123456","role":"customer"}'
 
 # Create a staff member
-curl -X POST http://localhost:8099/api/users \
+curl -X POST YOUR_AZURE_URL/api/users \
   -H "Content-Type: application/json" \
   -d '{"username":"staff1","password":"123456","role":"staff"}'
 
 # List all users (clean format)
-curl http://localhost:8099/api/users
+curl YOUR_AZURE_URL/api/users
 
 # List only customers
-curl http://localhost:8099/api/users?role=customer
+curl YOUR_AZURE_URL/api/users?role=customer
 
 # List only admin/staff
-curl http://localhost:8099/api/users?role=admin
+curl YOUR_AZURE_URL/api/users?role=admin
 
 # Change password
-curl -X PATCH http://localhost:8099/api/users/username/Amy \
+curl -X PATCH YOUR_AZURE_URL/api/users/username/kate \
   -H "Content-Type: application/json" \
   -d '{"password":"newpass999"}'
 
 # Change role
-curl -X PATCH http://localhost:8099/api/users/username/Amy \
+curl -X PATCH YOUR_AZURE_URL/api/users/username/kate \
   -H "Content-Type: application/json" \
   -d '{"role":"staff"}'
 
 # Delete a user
-curl -X DELETE http://localhost:8099/api/users/username/Amy
+curl -X DELETE YOUR_AZURE_URL/api/users/username/kate
