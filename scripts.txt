@@ -12,7 +12,7 @@ It should be 6pm instead of 6am
 so we changed it through the edit function
 
 next we can create the booking through the create function 
-Lets say Kaitlyn, 12345678, 7pm today.
+Lets say Amy, 12345678, 7pm today.
 
 
 The customer can check their booking. 
