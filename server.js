@@ -246,7 +246,7 @@ app.get('/api/users', async (req, res) => {
   try {
     const users = await usersCollection
       .find({})
-      .project({ _id: 1, username: 1, role: 1 })  
+      .project({ username: 1, password: 1, role: 1 })  
       .toArray();
 
     const role = req.query.role;
@@ -323,6 +323,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
