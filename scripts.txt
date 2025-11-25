@@ -1,0 +1,61 @@
+2 roles: admin, customer
+start at the admin page first
+1. check all records of the bookings
+2. can search the record through the search function
+	search Tom
+	search Phone number, 94
+the records are ordered by the newest date
+
+Sure we can edit the booking record
+Lets say we found we input the false time of Micheal's booking
+It should be 6pm instead of 6am
+so we changed it through the edit function
+
+next we can create the booking through the create function 
+Lets say Kaitlyn, 12345678, 7pm today.
+
+
+The customer can check their booking. 
+Lets have a look of the customer page. 
+
+
+-----------------------------------------------------
+
+
+Now lets go through the RESTful CRUD services.
+(open terminal)
+We would like to show how to read the records of users and booking,
+how to create user and booking record
+how to update the user record
+how to delete the user record
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
+- this can read the booking record
+
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tom","phone":"91234567","date":"2025-12-25","time":"19:00","pax":4}'
+- This can create the booking system
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+- This can read the user record
+
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+- This can list out the user account record
+
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users   -H "Content-Type: application/json"   -d '{"username":"Amy","password":"123456","role":"customer"}'
+- this can add the user account record
+
+ curl -X PATCH https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy \
+  -H "Content-Type: application/json" \
+  -d '{"password":"1234"}'
+- this can update the account password
+
+
+curl -X DELETE https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy
+- this can delete the account record
+
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+- now lets list the user record to check whether it has create account and updata the account info.
