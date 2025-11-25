@@ -254,7 +254,7 @@ app.get('/api/users', async (req, res) => {
 
     // one user per line
     const output = filtered
-      .map(u => `ID: ${u._id} | User: ${u.username.padEnd(15)} | Role: ${u.role}`)
+      .map(u => `User: ${u.username.padEnd(18)} | Password: ${u.password.padEnd(12)} | Role: ${u.role}`)
       .join('\n');
 
     res.type('text').send(output || 'No users found');
@@ -323,6 +323,7 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
