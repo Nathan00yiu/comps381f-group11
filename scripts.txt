@@ -29,33 +29,22 @@ how to create user and booking record
 how to update the user record
 how to delete the user record
 
-curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
-- this can read the booking record
+(Create1) 
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users   -H "Content-Type: application/json"   -d '{"username":"Amy","password":"123456","role":"customer"}'
 
+(Create2) 
 curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings \
   -H "Content-Type: application/json" \
   -d '{"name":"Tom","phone":"91234567","date":"2025-12-25","time":"19:00","pax":4}'
-- This can create the booking system
 
-curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
-- This can read the user record
+(Read) 
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users
 
-
-curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
-- This can list out the user account record
-
-curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users   -H "Content-Type: application/json"   -d '{"username":"Amy","password":"123456","role":"customer"}'
-- this can add the user account record
-
+(Update)
  curl -X PATCH https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy \
   -H "Content-Type: application/json" \
   -d '{"password":"1234"}'
-- this can update the account password
 
-
+(Delete) 
 curl -X DELETE https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy
-- this can delete the account record
-
-
-curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
-- now lets list the user record to check whether it has create account and updata the account info.
