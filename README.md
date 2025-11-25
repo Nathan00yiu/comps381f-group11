@@ -13,6 +13,7 @@
 
 ## Cloud URL
 http://localhost:8099 (local)
+http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/ (cloud)
 
 ## Operation
 1. **Login**: `/login` → admin / 1234
@@ -24,3 +25,4 @@ http://localhost:8099 (local)
    ```bash
    curl http://localhost:8099/api/bookings
    curl -X POST -d "name=Tom&phone=12345678&date=2025-12-01&time=18:00&pax=4" http://localhost:8099/api/bookings
+
