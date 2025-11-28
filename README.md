@@ -24,14 +24,14 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
 
 ## Operation
 1. **Login**:
-   Users must log in at /login to access any CRUD page
-   Authentication uses cookie-session with secure secret
-   Logout button is present on every CRUD page via header.ejs
-   Unauthorized access → automatic redirect to /login
-   two roles Admin and customers 
-   Admin username and password → admin / 123456
-   Customers username and password → Peter / 123456 (example)
-   Customers can register a new account by themselve → using the register function
+   - Users must log in at /login to access any CRUD page
+   - Authentication uses cookie-session with secure secret
+   - Logout button is present on every CRUD page via header.ejs
+   - Unauthorized access → automatic redirect to /login
+   - Two roles Admin and customers 
+   - Admin username and password → admin / 123456
+   - Customers username and password → Peter / 123456 (example)
+   - Customers can register a new account by themselve → using the register function
    
 3. **CRUD**:
    - Create booking record: admin using the `+New` button
@@ -78,5 +78,6 @@ Can directly type in the terminal
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+
 
 
