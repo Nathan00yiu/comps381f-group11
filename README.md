@@ -26,15 +26,49 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
 1. **Login**: two roles Admin and customers 
    Admin username and password → admin / 123456
    Customers username and password → Peter / 123456 (example)
-   Customers can register a new account by themselve
-3. **CRUD**:
-   - Create: `/create`
-   - List: `/`
-   - Edit/Delete: via links
-4. **REST API**:
+   Customers can register a new account by themselve → using the register function
+   
+2. **CRUD**:
+   - Create booking record: admin using the `+New` button
+   - Booking List: display at the main page. 
+   - Edit/Delete: `Edit` and `delete` button next to each records for edit and delete records.
+   - Searching function: Can search specific records using Name, Phone number, date and pax. 
+    
+3. **REST API**:
    ```bash
-   curl http://localhost:8099/api/bookings
-   curl -X POST -d "name=Tom&phone=12345678&date=2025-12-01&time=18:00&pax=4" http://localhost:8099/api/bookings
+   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
+- Read the booking record
+
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tom","phone":"91234567","date":"2025-12-25","time":"19:00","pax":4}'
+- Create the booking system
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+- Read the user record
+
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+- List the user account record
+
+curl -X POST https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users   -H "Content-Type: application/json"   -d '{"username":"Amy","password":"123456","role":"customer"}'
+- Add the user account record
+
+ curl -X PATCH https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy \
+  -H "Content-Type: application/json" \
+  -d '{"password":"1234"}'
+- Update the account password
+
+
+curl -X DELETE https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy
+- Delete the account record
+
+
+curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+-List the user record to check whether it has create account and updata the account info.
+
+
+
 
 
 
