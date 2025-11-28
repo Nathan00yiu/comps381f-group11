@@ -18,9 +18,9 @@
            
 
 ## Cloud URL
-http://localhost:8099 (local)
+`http://localhost:8099` (local)
 
-http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/ (cloud)
+`http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/` (cloud)
 
 ## Operation
 1. **Login**:
@@ -29,8 +29,8 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
    - Logout button is present on every CRUD page via header.ejs
    - Unauthorized access → automatic redirect to /login
    - Two roles Admin and customers 
-   - Admin username and password → admin / 123456
-   - Customers username and password → Peter / 123456 (example)
+   - Admin username and password → `admin / 123456`
+   - Customers username and password → `Peter / 123456` (example)
    - Customers can register a new account by themselve → using the register function
    
 3. **CRUD**:
@@ -78,6 +78,7 @@ Can directly type in the terminal
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+
 
 
 
