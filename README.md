@@ -35,6 +35,8 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
    - Searching function: Can search specific records using Name, Phone number, date and pax. 
     
 3. **REST API**:
+Can directly type in the terminal
+
 - Read the booking record
    ```bash
    curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/bookings
@@ -71,4 +73,3 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
-
