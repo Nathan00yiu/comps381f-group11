@@ -3,11 +3,11 @@
 
 ## Info
 - Group number: 11
-- Group Leader: Kaitlyn Yip (SID: 12345678)
-- Group Member: Lam Ching Yiu (SID 13793309)
-                KONG Hau Ying (SID 13143638)
-                KWAN Yuen Man (SID 13713897)
-                WU Yat Keung (SID 13642323)
+- Group Leader: Kaitlyn Yip (13720495)
+- Group Member: Lam Ching Yiu (13793309)
+                KONG Hau Ying (13143638)
+                KWAN Yuen Man (13713897)
+                WU Yat Keung (13642323)
 
 - Course: COMPS381F
 
@@ -73,3 +73,4 @@ Can directly type in the terminal
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+
