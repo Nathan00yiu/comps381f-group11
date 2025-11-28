@@ -71,13 +71,3 @@ http://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.ne
 -List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
-
-
-
-
-
-
-
-
-
-
