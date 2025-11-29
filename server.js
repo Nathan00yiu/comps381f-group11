@@ -317,12 +317,34 @@ app.delete('/api/users/username/:username', async (req, res) => {
   }
 });
 
+
+// DELETE ALL USERS (use only for testing/reset)
+app.delete('/api/users/all', async (req, res) => {
+  const secret = req.headers['x-secret'] || req.query.secret || req.body.secret;
+
+  if (secret !== 'my-super-secret-12345') {
+    return res.status(403).json({ error: 'Forbidden — wrong or missing secret' });
+  }
+
+  try {
+    const result = await usersCollection.deleteMany({});
+    res.json({
+      success: true,
+      message: `Deleted ${result.deletedCount} user accounts`,
+      deletedCount: result.deletedCount
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ===================== START SERVER =====================
 const PORT = process.env.PORT || 8099;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   console.log(`Test: curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"username":"Amy","password":"123456","role":"customer"}'`);
 });
+
 
 
 
