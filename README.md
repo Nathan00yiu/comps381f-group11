@@ -70,14 +70,17 @@ Can directly type in the terminal
     -H "Content-Type: application/json" \
     -d '{"password":"1234"}'
 
-- Delete the account record
+- Delete the account record by user name
   ```bash
   curl -X DELETE https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users/username/Amy
-
+- Delete ALL users instantly
+  ```bash
+  curl -X DELETE http://localhost:8099/api/users/all -H "x-secret: my-super-secret-12345"
 
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+
 
 
 
