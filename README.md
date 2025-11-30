@@ -52,13 +52,12 @@ Can directly type in the terminal
     -H "Content-Type: application/json" \
     -d '{"name":"Tom","phone":"91234567","date":"2025-12-25","time":"19:00","pax":4}'
 
-- Read the user record
+- Read the user/admin record
   ```bash
-  curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+  curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/users
 
-- List the user account record
-  ```bash
-  curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+  curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/admin
+  
 
 - Add the user account record
   ```bash
@@ -80,6 +79,7 @@ Can directly type in the terminal
 - List the user record to check whether it has create account and updata the account info.
   ```bash
   curl https://s381fgroupproject-e7bygjesh4hfamb6.germanywestcentral-01.azurewebsites.net/api/user
+
 
 
 
